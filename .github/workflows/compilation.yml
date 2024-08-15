@@ -17,7 +17,24 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake
+        apk add build-base git bash cmake autoconf automake zlib-dev bash
+
+    - name: Recompile pspsdk
+      run: |
+        git clone https://github.com/fjtrujy/pspsdk.git
+        cd pspsdk
+        git checkout inline_gu
+        ./bootstrap
+        ./configure
+        make -j $(getconf _NPROCESSORS_ONLN) install
+
+    - name: Recompile libintrafont
+      run: |
+        git clone https://github.com/pspdev/libintrafont.git
+        cd libintrafont
+        git checkout acbb1617327b9e453f5a9e3307b4dae20ca68f7d 
+        make -f Makefile.psp release
+        install -m 644 lib/libintrafont.a ${PSPDEV}/psp/lib
     
     - name: Compile project
       run: |
